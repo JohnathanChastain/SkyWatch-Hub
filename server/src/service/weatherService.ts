@@ -84,9 +84,9 @@ class WeatherService {
   }
 
   // getWeatherByCityName method
-  async getWeatherByCityName(cityName: string) {
-    return this.getWeatherForCity(cityName);
-  }
+//   async getWeatherByCityName(cityName: string) {
+//     return this.getWeatherForCity(cityName);
+//   }
 }
 
 export default new WeatherService();
