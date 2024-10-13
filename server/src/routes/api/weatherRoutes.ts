@@ -19,15 +19,15 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve weather data' });
   }
-  // TODO: save city to search history
+  // save city to search history
   // Assuming HistoryService has a method saveHistory
   await HistoryService.saveHistory(cityName);
 });
 
-// TODO: GET search history
-router.get('/history', async (req: Request, res: Response) => {});
+// GET search history
+router.get('/history', async (_req: Request, _res: Response) => {});
 
 // * BONUS TODO: DELETE city from search history
-router.delete('/history/:id', async (req: Request, res: Response) => {});
+router.delete('/history/:id', async (_req: Request, _res: Response) => {});
 
 export default router;
