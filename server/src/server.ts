@@ -9,13 +9,10 @@ const app = express();
 
 const PORT = process.env.PORT || 3001;
 
-// Serve static files of entire client dist folder
+// Serves static files in the entire client's dist folder
 app.use(express.static('../client/dist'));
-
-// Implement middleware for parsing JSON and urlencoded form data
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Implement middleware to connect the routes
 app.use(routes);
 
 // Start the server on the port
