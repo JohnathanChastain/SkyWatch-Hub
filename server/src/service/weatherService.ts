@@ -10,6 +10,21 @@ interface Coordinates {
   state: string;
 }
 
+/*
+? This class can be simplified by adding the `public` keyword to the constructor parameters.
+? This will automatically create the properties and assign the values to the properties.
+class Weather {
+  constructor(
+    public city: string,
+    public date: Dayjs,
+    public tempF: number,
+    public windSpeed: number,
+    public humidity: number,
+    public icon: string,
+    public iconDescription: string
+  ) {}
+}
+*/
 class Weather {
   city: string;
   date: Dayjs | string;
