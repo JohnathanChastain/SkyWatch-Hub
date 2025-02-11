@@ -65,14 +65,14 @@ class WeatherService {
     this.apiKey = process.env.API_KEY || '';
   }
 
-  private async fetchLocationData(query: string) {
+  private async fetchLocationData(query: string): Promise<Coordinates> {
     try {
       if (!this.baseURL || !this.apiKey) {
         throw new Error('API base URL or API key not found');
       }
-
+  
       const response: Coordinates[] = await fetch(query).then((res) =>
-        res.json()
+        res.json() as Promise<Coordinates[]>
       );
       return response[0];
     } catch (error) {
