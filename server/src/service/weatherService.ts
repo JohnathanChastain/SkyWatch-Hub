@@ -10,21 +10,25 @@ interface Coordinates {
   state: string;
 }
 
-/*
-? This class can be simplified by adding the `public` keyword to the constructor parameters.
-? This will automatically create the properties and assign the values to the properties.
-class Weather {
-  constructor(
-    public city: string,
-    public date: Dayjs,
-    public tempF: number,
-    public windSpeed: number,
-    public humidity: number,
-    public icon: string,
-    public iconDescription: string
-  ) {}
+interface WeatherResponse {
+  list: Array<{
+    dt: number;
+    main: {
+      temp: number;
+      humidity: number;
+    };
+    wind: {
+      speed: number;
+    };
+    weather: Array<{
+      icon: string;
+      description: string;
+      main: string;
+    }>;
+    dt_txt: string;
+  }>;
 }
-*/
+
 class Weather {
   city: string;
   date: Dayjs | string;
@@ -54,14 +58,11 @@ class Weather {
 
 class WeatherService {
   private baseURL?: string;
-
   private apiKey?: string;
-
   private city = '';
 
   constructor() {
     this.baseURL = process.env.API_BASE_URL || '';
-
     this.apiKey = process.env.API_KEY || '';
   }
 
@@ -70,7 +71,7 @@ class WeatherService {
       if (!this.baseURL || !this.apiKey) {
         throw new Error('API base URL or API key not found');
       }
-  
+
       const response: Coordinates[] = await fetch(query).then((res) =>
         res.json() as Promise<Coordinates[]>
       );
@@ -109,37 +110,31 @@ class WeatherService {
     return weatherQuery;
   }
 
-  private async fetchAndDestructureLocationData() {
-    return await this.fetchLocationData(this.buildGeocodeQuery()).then((data) =>
-      this.destructureLocationData(data)
-    );
+  private async fetchAndDestructureLocationData(): Promise<Coordinates> {
+    const data = await this.fetchLocationData(this.buildGeocodeQuery());
+    return this.destructureLocationData(data);
   }
 
-  private async fetchWeatherData(coordinates: Coordinates) {
+  private async fetchWeatherData(coordinates: Coordinates): Promise<Weather[]> {
     try {
-      const response = await fetch(this.buildWeatherQuery(coordinates)).then(
+      const response: WeatherResponse = await fetch(this.buildWeatherQuery(coordinates)).then(
         (res) => res.json()
       );
-      if (!response) {
+      if (!response || !response.list || response.list.length === 0) {
         throw new Error('Weather data not found');
       }
 
-      const currentWeather: Weather = this.parseCurrentWeather(
-        response.list[0]
-      );
+      const currentWeather: Weather = this.parseCurrentWeather(response.list[0]);
 
-      const forecast: Weather[] = this.buildForecastArray(
-        currentWeather,
-        response.list
-      );
+      const forecast: Weather[] = this.buildForecastArray(currentWeather, response.list);
       return forecast;
     } catch (error: any) {
       console.error(error);
-      return error;
+      throw error;
     }
   }
 
-  private parseCurrentWeather(response: any) {
+  private parseCurrentWeather(response: WeatherResponse['list'][0]): Weather {
     const parsedDate = dayjs.unix(response.dt).format('M/D/YYYY');
 
     const currentWeather = new Weather(
@@ -155,10 +150,10 @@ class WeatherService {
     return currentWeather;
   }
 
-  private buildForecastArray(currentWeather: Weather, weatherData: any[]) {
+  private buildForecastArray(currentWeather: Weather, weatherData: WeatherResponse['list']): Weather[] {
     const weatherForecast: Weather[] = [currentWeather];
 
-    const filteredWeatherData = weatherData.filter((data: any) => {
+    const filteredWeatherData = weatherData.filter((data) => {
       return data.dt_txt.includes('12:00:00');
     });
 
@@ -179,7 +174,7 @@ class WeatherService {
     return weatherForecast;
   }
 
-  async getWeatherForCity(city: string) {
+  async getWeatherForCity(city: string): Promise<Weather[]> {
     try {
       this.city = city;
       const coordinates = await this.fetchAndDestructureLocationData();
