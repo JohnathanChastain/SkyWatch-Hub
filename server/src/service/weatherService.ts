@@ -62,8 +62,8 @@ class WeatherService {
   private city = '';
 
   constructor() {
-    this.baseURL = process.env.API_BASE_URL || '';
-    this.apiKey = process.env.API_KEY || '';
+    this.baseURL = process.env.API_BASE_URL || 'default_base_url';
+    this.apiKey = process.env.API_KEY || 'default_api_key';
   }
 
   private async fetchLocationData(query: string): Promise<Coordinates> {
